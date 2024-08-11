@@ -53,7 +53,12 @@ bool checkObstacle() {
 void chooseDirection() {
   stopMovement();
   delay(500);
-  
+
+  moveBackward();
+  delay(1000);
+  stopMovement();
+  delay(500);
+
   // Check left
   myServo.write(leftAngle);
   delay(500);
@@ -74,8 +79,6 @@ void chooseDirection() {
   } else {
     turnRight();
   }
-  
-  // Move forward after turning
   delay(1000);
   moveForward();
 }
@@ -86,7 +89,7 @@ void moveForward() {
   analogWrite(enaPin, speed);
 
   digitalWrite(in3Pin, LOW);
-  digitalWrite(in4Pin,  );
+  digitalWrite(in4Pin, HIGH);
   analogWrite(enbPin, speed);
 }
 
