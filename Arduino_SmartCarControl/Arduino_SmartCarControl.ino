@@ -14,7 +14,7 @@ const int maxDistance = 200;
 Servo myServo;
 NewPing sonar(triggerPin, echoPin, maxDistance);
 
-//const int speed = 255;
+const int speed = 55;
 bool movingForward = false;
 
 void setup() {
@@ -24,8 +24,8 @@ void setup() {
   pinMode(in2Pin, OUTPUT);
   pinMode(in3Pin, OUTPUT);
   pinMode(in4Pin, OUTPUT);
-  // pinMode(enaPin, OUTPUT);
-  // pinMode(enbPin, OUTPUT);
+  pinMode(enaPin, OUTPUT);
+  pinMode(enbPin, OUTPUT);
   pinMode(triggerPin, OUTPUT);
   pinMode(echoPin, INPUT);
   myServo.write(90);
@@ -33,9 +33,9 @@ void setup() {
 }
 
 void loop() {
-  /* test tránh vật cản
-  long distance = getDistance();
-  if (movingForward == true && distance < 20) {
+  /* test tránh vật cản */
+  long distance = sonar.ping_cm();
+  if (movingForward && distance > 0 && distance < 20) {
     stop();
     long distanceRight = scanRight();
     long distanceLeft = scanLeft();
@@ -49,7 +49,6 @@ void loop() {
     forward();
     delay(100);
   }
-  */
   /* test di chuyển */
   forward();
   delay(1000);
@@ -61,17 +60,12 @@ void loop() {
   delay(1000);
   stop();
   delay(1000);
-
-}
-
-long getDistance(){
-  return sonar.ping_cm();
 }
 
 long scanRight() {
   myServo.write(30);
   delay(300);
-  long distance = getDistance();
+  long distance = sonar.ping_cm();
   myServo.write(90);
   delay(300);
   return distance;
@@ -80,7 +74,7 @@ long scanRight() {
 long scanLeft() {
   myServo.write(150);
   delay(300);
-  long distance = getDistance();
+  long distance = sonar.ping_cm();
   myServo.write(90);
   delay(300);
   return distance;
@@ -88,6 +82,8 @@ long scanLeft() {
 
 void forward() {
   movingForward = true;
+  analogWrite(enaPin, speed);
+  analogWrite(enbPin, speed);
   digitalWrite(in2Pin, LOW);
   digitalWrite(in4Pin, LOW);
   digitalWrite(in1Pin, HIGH);
@@ -95,6 +91,8 @@ void forward() {
 }
 
 void backward() {
+  analogWrite(enaPin, speed);
+  analogWrite(enbPin, speed);
   movingForward = false;
   digitalWrite(in1Pin, LOW);
   digitalWrite(in3Pin, LOW);
@@ -104,6 +102,8 @@ void backward() {
 
 void right() {
   movingForward = true;
+  analogWrite(enaPin, speed);
+  analogWrite(enbPin, 0);
   digitalWrite(in2Pin, LOW);
   digitalWrite(in3Pin, LOW);
   digitalWrite(in4Pin, LOW);
@@ -112,6 +112,8 @@ void right() {
 
 void left() {
   movingForward = true;
+  analogWrite(enaPin, 0);
+  analogWrite(enbPin, speed);
   digitalWrite(in1Pin, LOW);
   digitalWrite(in2Pin, LOW);
   digitalWrite(in4Pin, LOW);
@@ -120,6 +122,8 @@ void left() {
 
 void stop() {
   movingForward = false;
+  analogWrite(enaPin, 0);
+  analogWrite(enbPin, 0);
   digitalWrite(in1Pin, LOW);
   digitalWrite(in2Pin, LOW);
   digitalWrite(in3Pin, LOW);
