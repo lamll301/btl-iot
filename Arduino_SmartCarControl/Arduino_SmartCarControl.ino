@@ -14,7 +14,7 @@ const int maxDistance = 200;
 Servo myServo;
 NewPing sonar(triggerPin, echoPin, maxDistance);
 
-const int speed = 55;
+const int speed = 255;
 bool movingForward = false;
 
 void setup() {
@@ -35,6 +35,7 @@ void setup() {
 void loop() {
   /* test tránh vật cản */
   long distance = sonar.ping_cm();
+  Serial.println(String(distance) + " cm");
   if (movingForward && distance > 0 && distance < 20) {
     stop();
     long distanceRight = scanRight();
@@ -48,18 +49,18 @@ void loop() {
   } else {
     forward();
     delay(100);
-  }
+  // }
   /* test di chuyển */
-  forward();
-  delay(1000);
-  backward();
-  delay(1000);
-  left();
-  delay(1000);
-  right();
-  delay(1000);
-  stop();
-  delay(1000);
+  // forward();
+  // delay(1000);
+  // backward();
+  // delay(1000);
+  // left();
+  // delay(1000);
+  // right();
+  // delay(1000);
+  // stop();
+  // delay(1000);
 }
 
 long scanRight() {
@@ -82,50 +83,49 @@ long scanLeft() {
 
 void forward() {
   movingForward = true;
-  analogWrite(enaPin, speed);
-  analogWrite(enbPin, speed);
   digitalWrite(in2Pin, LOW);
   digitalWrite(in4Pin, LOW);
   digitalWrite(in1Pin, HIGH);
   digitalWrite(in3Pin, HIGH);
+  analogWrite(enaPin, speed);
+  analogWrite(enbPin, speed);
 }
 
 void backward() {
-  analogWrite(enaPin, speed);
-  analogWrite(enbPin, speed);
-  movingForward = false;
   digitalWrite(in1Pin, LOW);
   digitalWrite(in3Pin, LOW);
   digitalWrite(in2Pin, HIGH);
   digitalWrite(in4Pin, HIGH);
+  analogWrite(enaPin, speed);
+  analogWrite(enbPin, speed);
 }
 
 void right() {
   movingForward = true;
-  analogWrite(enaPin, speed);
-  analogWrite(enbPin, 0);
   digitalWrite(in2Pin, LOW);
   digitalWrite(in3Pin, LOW);
   digitalWrite(in4Pin, LOW);
   digitalWrite(in1Pin, HIGH);
+  analogWrite(enaPin, speed);
+  analogWrite(enbPin, speed);
 }
 
 void left() {
   movingForward = true;
-  analogWrite(enaPin, 0);
-  analogWrite(enbPin, speed);
   digitalWrite(in1Pin, LOW);
   digitalWrite(in2Pin, LOW);
   digitalWrite(in4Pin, LOW);
   digitalWrite(in3Pin, HIGH);
+  analogWrite(enaPin, speed);
+  analogWrite(enbPin, speed);
 }
 
 void stop() {
   movingForward = false;
-  analogWrite(enaPin, 0);
-  analogWrite(enbPin, 0);
   digitalWrite(in1Pin, LOW);
   digitalWrite(in2Pin, LOW);
   digitalWrite(in3Pin, LOW);
   digitalWrite(in4Pin, LOW);
+  analogWrite(enaPin, 0);
+  analogWrite(enbPin, 0);
 }
