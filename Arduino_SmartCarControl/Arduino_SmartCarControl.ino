@@ -1,5 +1,4 @@
 #include <Servo.h>
-#include <NewPing.h>
 
 const int servoPin = 11;
 const int echoPin = 9;
@@ -10,11 +9,9 @@ const int in3Pin = 6;
 const int in4Pin = 4;
 const int enaPin = 5;
 const int enbPin = 3;
-const int maxDistance = 200;
 Servo myServo;
-NewPing sonar(triggerPin, echoPin, maxDistance);
 
-const int speed = 255;
+const int speed = 100;
 bool movingForward = false;
 
 void setup() {
@@ -26,47 +23,48 @@ void setup() {
   pinMode(in4Pin, OUTPUT);
   pinMode(enaPin, OUTPUT);
   pinMode(enbPin, OUTPUT);
-  pinMode(triggerPin, OUTPUT);
-  pinMode(echoPin, INPUT);
   myServo.write(90);
   delay(1000);
 }
 
 void loop() {
-  /* test tránh vật cản */
-  long distance = sonar.ping_cm();
+  long distance = getDistance();
   Serial.println(String(distance) + " cm");
   if (movingForward && distance > 0 && distance < 20) {
     stop();
     long distanceRight = scanRight();
     long distanceLeft = scanLeft();
+    Serial.println("Distance Right: " + String(distanceRight) + " cm");
+    Serial.println("Distance Left: " + String(distanceLeft) + " cm");
     if (distanceLeft > distanceRight) {
+      Serial.println("Turning Left");
       left();
     } else {
+      Serial.println("Turning Right");
       right();
     }
     delay(500);
   } else {
     forward();
     delay(100);
-  // }
-  /* test di chuyển */
-  // forward();
-  // delay(1000);
-  // backward();
-  // delay(1000);
-  // left();
-  // delay(1000);
-  // right();
-  // delay(1000);
-  // stop();
-  // delay(1000);
+  }
+}
+
+unsigned int getDistance() {
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+  long duration = pulseIn(echoPin, HIGH);
+  unsigned int distance = duration * 0.034 / 2;
+  return distance;
 }
 
 long scanRight() {
   myServo.write(30);
   delay(300);
-  long distance = sonar.ping_cm();
+  long distance = getDistance();
   myServo.write(90);
   delay(300);
   return distance;
@@ -75,7 +73,7 @@ long scanRight() {
 long scanLeft() {
   myServo.write(150);
   delay(300);
-  long distance = sonar.ping_cm();
+  long distance = getDistance();
   myServo.write(90);
   delay(300);
   return distance;
@@ -100,7 +98,7 @@ void backward() {
   analogWrite(enbPin, speed);
 }
 
-void right() {
+void left() {
   movingForward = true;
   digitalWrite(in2Pin, LOW);
   digitalWrite(in3Pin, LOW);
@@ -110,7 +108,7 @@ void right() {
   analogWrite(enbPin, speed);
 }
 
-void left() {
+void right() {
   movingForward = true;
   digitalWrite(in1Pin, LOW);
   digitalWrite(in2Pin, LOW);
