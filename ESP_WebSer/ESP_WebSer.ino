@@ -1,20 +1,15 @@
 #include <ESP8266WiFi.h>
-#include <Firebase_ESP_Client.h>
+#include <ESP8266Firebase.h>
 
-const char* ssid = "VNPT_LyLam";
-const char* password = "30012003";
-#define FIREBASE_HOST "iot-project-b170f-default-rtdb.asia-southeast1.firebasedatabase.app"
-#define FIREBASE_AUTH ""
+const char* ssid = "Tenda_325880";
+const char* password = "12345678";
+#define REFERENCE_URL "https://iot-project-b170f-default-rtdb.asia-southeast1.firebasedatabase.app/"
 
-FirebaseData fbdo;
-FirebaseAuth auth;
-FirebaseConfig config;
+Firebase firebase(REFERENCE_URL);
 
-String fireDirection = "";
-String fireMode = "";
-int fireSpeed = 0;
-
-void setupServer() {
+void setup() {
+  Serial.begin(9600);
+  
   // Kết nối WiFi
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -27,18 +22,30 @@ void setupServer() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-  // Kết nối Firebase
-  config.api_key = API_KEY;
-  config.database_url = DATABASE_URL;
-  Firebase.reconnectNetwork(true);
-  fbdo.setBSSLBufferSize(4096, )
-}
 
-void setup() {
-  Serial.begin(9600);
-  setupServer();
+  // Kết nối Firebase
+  if (firebase.begin()) {
+    Serial.println("Successfully connected to Firebase");
+  } else {
+    Serial.println("Failed to connect to Firebase");
+  }
 }
 
 void loop() {
+  String fireDirection = firebase.getString("vehicle/direction");
+  String fireMode = firebase.getString("vehicle/mode");
+  int fireSpeed = firebase.getInt("vehicle/speed");
+
+  Serial.print("DIRECTION:");
+  Serial.print(fireDirection);
+  Serial.print(";");
   
+  Serial.print("MODE:");
+  Serial.print(fireMode);
+  Serial.print(";");
+  
+  Serial.print("SPEED:");
+  Serial.println(fireSpeed);
+  
+  delay(1000);
 }

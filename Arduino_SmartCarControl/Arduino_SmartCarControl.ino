@@ -1,6 +1,8 @@
 #include <Servo.h>
 #include <NewPing.h>
 
+// const int txPin = 0;
+// const int rxPin = 1;
 const int servoPin = 11;
 const int echoPin = 9;
 const int triggerPin = 10;
@@ -17,6 +19,9 @@ Servo myServo;
 NewPing sonar(triggerPin, echoPin, maxDistance);
 
 bool movingForward = false;
+String fireDirection = "";
+String fireMode = "";
+int fireSpeed = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -32,8 +37,41 @@ void setup() {
 }
 
 void loop() {
+  if (Serial.available()) {
+    String input = Serial.readStringUntil('\n');
+    
+    // Phân tích dữ liệu nhận được từ ESP8266
+    if (input.startsWith("DIRECTION:")) {
+      fireDirection = input.substring(10, input.indexOf(';'));
+    } else if (input.startsWith("MODE:")) {
+      fireMode = input.substring(5, input.indexOf(';'));
+    } else if (input.startsWith("SPEED:")) {
+      fireSpeed = input.substring(6).toInt();
+    }
+    Serial.println("Chế dộ: " + fireMode + ", Hướng: " + fireDirection + ", Tốc độ: " + String(fireSpeed));
+
+    // Thực hiện hành động dựa trên dữ liệu nhận được
+    if (fireMode == "manual") {
+      if (fireDirection == "forward") {
+        forward();
+      } else if (fireDirection == "backward") {
+        backward();
+      } else if (fireDirection == "left") {
+        left();
+      } else if (fireDirection == "right") {
+        right();
+      } else if (fireDirection == "stopped") {
+        stop();
+      }
+    } else if (fireMode == "automatic") {
+      autoControl();
+    }
+  }
+}
+
+void autoControl() {
   int distance = sonar.ping_cm();
-  Serial.println(String(distance) + " cm");
+  // Serial.println(String(distance) + " cm");
   if (movingForward && distance > 0 && distance < 20) {
     backward();
     delay(100);
@@ -41,12 +79,9 @@ void loop() {
     delay(500);
     int distanceRight = scanRight();
     int distanceLeft = scanLeft();
-    Serial.println("right: " + String(distanceRight) + " cm, left: " + String(distanceLeft) + " cm");
     if (distanceLeft > distanceRight) {
-      Serial.println("Turning Left");
       left();
     } else {
-      Serial.println("Turning Right");
       right();
     }
     delay(500);
