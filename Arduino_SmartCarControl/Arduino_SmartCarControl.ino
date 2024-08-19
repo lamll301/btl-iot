@@ -38,30 +38,26 @@ void setup() {
 void loop() {
   if (Serial.available()) {
     String input = Serial.readStringUntil('\n');
-    if (!input.startsWith("DIRECTION:")) {
-      stop();
-      return;
-    }
-    // Phân tích dữ liệu nhận được từ ESP8266
+    // if (!input.startsWith("DIRECTION:")) {
+    //   return;
+    // }
     data(input);
     Serial.println("Chế dộ: " + fireMode + ", Hướng: " + fireDirection + ", Tốc độ: " + String(fireSpeed));
-
-    // Thực hiện hành động dựa trên dữ liệu nhận được
-    if (fireMode == "manual") {
-      if (fireDirection == "forward") {
-        forward(fireSpeed);
-      } else if (fireDirection == "backward") {
-        backward(fireSpeed);
-      } else if (fireDirection == "left") {
-        left(fireSpeed);
-      } else if (fireDirection == "right") {
-        right(fireSpeed);
-      } else if (fireDirection == "stopped") {
-        stop();
-      }
-    } else if (fireMode == "automatic") {
-      automatic(fireSpeed);
+  }
+  if (fireMode == "manual") {
+    if (fireDirection == "forward") {
+      forward(fireSpeed);
+    } else if (fireDirection == "backward") {
+      backward(fireSpeed);
+    } else if (fireDirection == "left") {
+      left(fireSpeed);
+    } else if (fireDirection == "right") {
+      right(fireSpeed);
+    } else if (fireDirection == "stopped") {
+      stop();
     }
+  } else if (fireMode == "automatic") {
+    automatic(fireSpeed);
   }
 }
 
