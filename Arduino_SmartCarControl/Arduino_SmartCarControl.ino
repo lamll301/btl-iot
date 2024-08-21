@@ -1,8 +1,8 @@
 #include <Servo.h>
 #include <NewPing.h>
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
 
-// const int txPin = 0;
-// const int rxPin = 1;
 const int servoPin = 11;
 const int echoPin = 9;
 const int triggerPin = 10;
@@ -14,6 +14,7 @@ const int enaPin = 5;
 const int enbPin = 3;
 const int maxDistance = 200;
 
+LiquidCrystal_I2C lcd(0x27,16,2);
 Servo myServo;
 NewPing sonar(triggerPin, echoPin, maxDistance);
 
@@ -32,17 +33,17 @@ void setup() {
   pinMode(enaPin, OUTPUT);
   pinMode(enbPin, OUTPUT);
   myServo.write(90);
+  lcd.init();
+  lcd.backlight();
   delay(1000);
 }
 
 void loop() {
   if (Serial.available()) {
     String input = Serial.readStringUntil('\n');
-    // if (!input.startsWith("DIRECTION:")) {
-    //   return;
-    // }
     data(input);
     Serial.println("Chế dộ: " + fireMode + ", Hướng: " + fireDirection + ", Tốc độ: " + String(fireSpeed));
+    loadLcd(fireMode, fireDirection, fireSpeed);
   }
   if (fireMode == "manual") {
     if (fireDirection == "forward") {
@@ -82,7 +83,6 @@ void data(String input) {
 
 void automatic(int speed) {
   int distance = sonar.ping_cm();
-  // Serial.println(String(distance) + " cm");
   if (movingForward && distance > 0 && distance < 20) {
     backward(speed);
     delay(100);
@@ -100,6 +100,14 @@ void automatic(int speed) {
     forward(speed);
     delay(100);
   }
+}
+
+void loadLcd(String mode, String direction, int speed) {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(mode);
+  lcd.setCursor(0, 1);
+  lcd.print(direction + ", " + String(speed));
 }
 
 int scanRight() {
